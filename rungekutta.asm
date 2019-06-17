@@ -19,3 +19,13 @@ _start:   mov       rax, 1                  ; system call for write
 
           section   .data
 message:  db        "Hello, World", 10      ; note the newline at the end
+
+          section .bss
+		  korder1: resb 1
+		  korder2: resb 1
+		  korder3: resb 1
+		  korder4: resb 1
+		  y0: resb 1
+		  x0: resb 1
+		  iteraciones: resb 1
+
