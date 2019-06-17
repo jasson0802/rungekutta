@@ -18,22 +18,35 @@ _start:   mov       rax, 1                  ; system call for write
           xor       rdi, rdi                ; exit code 0
           syscall                           ; invoke operating system to exit
           
-          
           ;loop iteraciones
           ;push k1
           ;push k2
           ;push k3
           ;push k4
           ;ycalculada = yactual(n) + ((1/6)*(k1 + (2*k2) + (2*k3) + k4)*h);
-		  ;ti = ti + h;
-		  ;yactual = yp;
+		  ;yactual = ycalculada;
 
 		calcularganancia:
 		;D(t) = (i - p) D(t) + M
 		mov rax, 1
 		ret
-
-
+		
+		calcularK1:
+		mov rax, 1
+		ret
+		
+		calcularK2:
+		mov rax, 1
+		ret
+		
+		calcularK3:
+		mov rax, 1
+		ret
+		
+		calcularK4:
+		mov rax, 1
+		ret
+		
           section   .data
           
 message:  	db        "Hello, World", 10      ; note the newline at the end
