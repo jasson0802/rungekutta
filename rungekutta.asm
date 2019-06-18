@@ -34,28 +34,26 @@ calculoN:
 
 calcularDtActual:
 		;D(t) = (i - p) D(t) + M
-		mov dh, [interes]
-		mov dl, [inflacion]
-		xor eax, eax
-		mov eax, [yactual]
-		sub dh, dl         ;Restar el interes menos la inflacion
-		xor dl, dl		   ;Limpiar al
-		mov dl, dh		   ;Mover cantidad a al
-		xor dh, dh		   ;Limpiar ah	
-		mul dh		   ;Multiplicar diferencia de interes e inflacion por y0
-		add eax, [aporte]   ;Sumar el aporte adicional	
+		mov r8, [interes]
+		mov r9, [inflacion]
+		xor rax, rax
+		pop rax 			;mov eax, [yactual]
+		sub r8, r9         ;Restar el interes menos la inflacion
+		mul r8		   ;Multiplicar diferencia de interes e inflacion por y0
+		add rax, [aporte]   ;Sumar el aporte adicional	
 		
 		push rax		;Almacenar resultado de la multiplicacion
 		ret
 		
 
 calcularK1:
-		push yactual
+		;push yactual
 		;push x0
 		call calcularDtActual
 		ret
 
 calcularK2:
+		
 		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k1*h);
 		;xactualt0 + 0.5 * h
 		;yactual + 0.5 * k1 *h
@@ -97,4 +95,5 @@ t0:  		db 		0								;Variable independiente tiempo
 
 interes:	dw		0.04							; la tasa de interés estimada de inversión (por período)
 inflacion:	dw		0.07							; inflación en el período
+interesreal: 
 aporte:		dw		100								; el aporte adicional constante en cada trimestre
