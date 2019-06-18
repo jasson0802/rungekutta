@@ -1,6 +1,9 @@
 ; ----------------------------------------------------------------------------------------
 ; Proyecto 1 Arquitectura de computadoras
 ; Profesor: Jorge Vargas
+; r11 guarda el valor temporal de y
+; rcx se usa como registro para realizar las multiplicaciones con constantes
+; rax se utiliza para cargar las k
 ; ----------------------------------------------------------------------------------------
 
         global    _start
@@ -18,60 +21,75 @@ imprimir:
 
 		syscall                           ; Invocar al sistema operativo para salir
 ret
-        
-        
-        
+          
 calculoN:
-		dec esi
+		inc edx
 		call calcularK1
 		call calcularK2
 		call calcularK3
 		call calcularK4
 		call calcularsuma
 		call imprimir
-		jnz calculoN
+		cmp edx, [iteraciones]
+		jle calculoN
 		ret
 
 calcularDtActual:
-		;D(t) = (i - p) D(t) + M
+		;D'(t) = (i - p) D(t) + M
 		mov r8, [interes]
 		mov r9, [inflacion]
 		xor rax, rax
 		pop rax 			;mov eax, [yactual]
 		sub r8, r9         ;Restar el interes menos la inflacion
-		mul r8		   ;Multiplicar diferencia de interes e inflacion por y0
+		mul r8		   		;Multiplicar diferencia de interes e inflacion por yactual
 		add rax, [aporte]   ;Sumar el aporte adicional	
 		
-		push rax		;Almacenar resultado de la multiplicacion
+		mov r11, rax		;Almacenar resultado de la multiplicacion
 		ret
 		
 
 calcularK1:
-		;push yactual
-		;push x0
-		call calcularDtActual
+		xor rax, rax
+		mov eax, dword [yactual]
+		push rax
 		ret
 
 calcularK2:
+		xor rax, rax
+		xor rcx, rcx
+		pop rax
+		push rax
+		mov ecx, dword [constanteMul]
+		mul ecx ;Multiplicar por 1/2
+		mul dword [h]	 ;Multiplicar por salto
+		call calcularDtActual ;Obtener y(n)
+		add rax, r11   ; Sumar con resultado de multiplicacion
+			
+		push rax	;Almacenar k2
 		
-		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k1*h);
-		;xactualt0 + 0.5 * h
-		;yactual + 0.5 * k1 *h
-		call calcularDtActual
 		ret
 
 calcularK3:
-		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k2*h);
-		;xactualt0 + 0.5 * h
-		;yactual + 0.5 * k2 *h
-		call calcularDtActual
+		xor rax, rax
+		xor rcx, rcx
+		pop rax			;Cargar k2 en rax
+		push rax	;Almacenar k2 de nuevo en la pila
+		mov ecx, dword [constanteMul]
+		mul ecx ;Multiplicar por 1/2
+		mul dword [h]	 ;Multiplicar por salto
+		add rax, r11   ; Sumar con resultado de multiplicacion
+		
+		push rax
 		ret
 
 calcularK4:
-		;dydt(tp(n) + h, y0(n) + k3*h)
-		;xactualt0 * h
-		;yactual + k3 *h
-		call calcularDtActual
+		xor rax, rax
+		xor rcx, rcx
+		pop rax			;Cargar k3 en rax
+		push rax		;Almacenar k3 de nuevo en la pila
+		mul dword [h]	 ;Multiplicar por salto
+		
+		push rax
 		ret
 
 calcularsuma:
@@ -80,10 +98,14 @@ calcularsuma:
 		ret
 		
 _start: 
-		mov esi, [iteraciones]
-		call imprimir
-		call calcularDtActual
-		call calculoN
+		xor rax, rax				;Limpiar registros
+		xor rdx, rdx
+		mov esi, [iteraciones]		;Setear contador
+		call imprimir				;Imprimir
+		mov eax, dword [yactual]	;Setear y inicial
+		push rax					;Guardar y en pila
+		call calcularDtActual		;Calcular y'
+		call calculoN				;iniciar ciclo
 		
         section   .data
           
@@ -95,5 +117,6 @@ t0:  		db 		0								;Variable independiente tiempo
 
 interes:	dw		0.04							; la tasa de interés estimada de inversión (por período)
 inflacion:	dw		0.07							; inflación en el período
-interesreal: 
+constanteMul:	dw		0.5							; Constante de multiplicacion para k
+totalMul:	dw		0.16						; Constante de multiplicacion para total. Este numero debe ser 1/6
 aporte:		dw		100								; el aporte adicional constante en cada trimestre
