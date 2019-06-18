@@ -11,7 +11,7 @@ imprimir:
 		mov       rax, 1                  ; System call para escribir
 		mov       rdi, 1                  ; Archivo de salida
 		mov       rsi, message            ; Direccion de string de salida
-		mov       rdx, 13                 ; Numero de bytes
+		mov       rdx, 12                 ; Numero de bytes
 		syscall                           ; Invocar al sistema operativo para escribir
 		mov       rax, 60                 ; System call para salir
 		xor       rdi, rdi                ; Codigo de salida 0
@@ -73,7 +73,7 @@ _start:
 		
         section   .data
           
-message:  	db        "Hello, World", 10      ; note the newline at the end
+message:  	db        "Runge-Kutta", 10      ; note the newline at the end
 h:		  	dw 		1								; Salto
 iteraciones dw		10								;Cantidad de veces a calcular interes
 yactual:	dw		90								;Valor de D(0)
