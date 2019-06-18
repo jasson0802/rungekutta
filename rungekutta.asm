@@ -20,6 +20,7 @@ imprimir:
 ret
         
         
+        
 calculoN:
 		dec esi
 		call calcularK1
@@ -27,39 +28,52 @@ calculoN:
 		call calcularK3
 		call calcularK4
 		call calcularsuma
+		call imprimir
 		jnz calculoN
 		ret
 
-calcularganancia:
+calcularDtActual:
 		;D(t) = (i - p) D(t) + M
-		mov rax, 1
+		mov dh, [interes]
+		mov dl, [inflacion]
+		xor eax, eax
+		mov eax, [yactual]
+		sub dh, dl         ;Restar el interes menos la inflacion
+		xor dl, dl		   ;Limpiar al
+		mov dl, dh		   ;Mover cantidad a al
+		xor dh, dh		   ;Limpiar ah	
+		mul dh		   ;Multiplicar diferencia de interes e inflacion por y0
+		add eax, [aporte]   ;Sumar el aporte adicional	
+		
+		push rax		;Almacenar resultado de la multiplicacion
 		ret
+		
 
 calcularK1:
 		push yactual
 		;push x0
-		call calcularganancia
+		call calcularDtActual
 		ret
 
 calcularK2:
 		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k1*h);
 		;xactualt0 + 0.5 * h
 		;yactual + 0.5 * k1 *h
-		call calcularganancia
+		call calcularDtActual
 		ret
 
 calcularK3:
 		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k2*h);
 		;xactualt0 + 0.5 * h
 		;yactual + 0.5 * k2 *h
-		call calcularganancia
+		call calcularDtActual
 		ret
 
 calcularK4:
 		;dydt(tp(n) + h, y0(n) + k3*h)
 		;xactualt0 * h
 		;yactual + k3 *h
-		call calcularganancia
+		call calcularDtActual
 		ret
 
 calcularsuma:
@@ -68,8 +82,10 @@ calcularsuma:
 		ret
 		
 _start: 
-		;mov esi, [iteraciones]
+		mov esi, [iteraciones]
 		call imprimir
+		call calcularDtActual
+		call calculoN
 		
         section   .data
           
