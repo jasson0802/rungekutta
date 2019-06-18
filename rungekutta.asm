@@ -1,53 +1,77 @@
 ; ----------------------------------------------------------------------------------------
-; Writes "Hello, World" to the console using only system calls. Runs on 64-bit Linux only.
-; To assemble and run:
-;
-;     nasm -felf64 hello.asm && ld hello.o && ./a.out
+; Proyecto 1 Arquitectura de computadoras
+; Profesor: Jorge Vargas
 ; ----------------------------------------------------------------------------------------
 
-          global    _start
+        global    _start
 
-          section   .text
-          
-_start:   mov       rax, 1                  ; system call for write
-          mov       rdi, 1                  ; file handle 1 is stdout
-          mov       rsi, message            ; address of string to output
-          mov       rdx, 13                 ; number of bytes
-          syscall                           ; invoke operating system to do the write
-          mov       rax, 60                 ; system call for exit
-          xor       rdi, rdi                ; exit code 0
-          syscall                           ; invoke operating system to exit
-          
-          ;loop iteraciones
-          ;push k1
-          ;push k2
-          ;push k3
-          ;push k4
-          ;ycalculada = yactual(n) + ((1/6)*(k1 + (2*k2) + (2*k3) + k4)*h);
-		  ;yactual = ycalculada;
+        section   .text
 
-		calcularganancia:
+imprimir:
+		mov       rax, 1                  ; System call para escribir
+		mov       rdi, 1                  ; Archivo de salida
+		mov       rsi, message            ; Direccion de string de salida
+		mov       rdx, 13                 ; Numero de bytes
+		syscall                           ; Invocar al sistema operativo para escribir
+		mov       rax, 60                 ; System call para salir
+		xor       rdi, rdi                ; Codigo de salida 0
+
+		syscall                           ; Invocar al sistema operativo para salir
+ret
+        
+        
+calculoN:
+		dec esi
+		call calcularK1
+		call calcularK2
+		call calcularK3
+		call calcularK4
+		call calcularsuma
+		jnz calculoN
+		ret
+
+calcularganancia:
 		;D(t) = (i - p) D(t) + M
 		mov rax, 1
 		ret
-		
-		calcularK1:
-		mov rax, 1
+
+calcularK1:
+		push yactual
+		;push x0
+		call calcularganancia
+		ret
+
+calcularK2:
+		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k1*h);
+		;xactualt0 + 0.5 * h
+		;yactual + 0.5 * k1 *h
+		call calcularganancia
+		ret
+
+calcularK3:
+		;dydt(tp(n) + (1/2)*h, y0(n) + (1/2)*k2*h);
+		;xactualt0 + 0.5 * h
+		;yactual + 0.5 * k2 *h
+		call calcularganancia
+		ret
+
+calcularK4:
+		;dydt(tp(n) + h, y0(n) + k3*h)
+		;xactualt0 * h
+		;yactual + k3 *h
+		call calcularganancia
+		ret
+
+calcularsuma:
+		;suma = yactual + ((1/6)*(k1 + (2*k2) + (2*k3) + k4)*h);
+		;yactual = suma
 		ret
 		
-		calcularK2:
-		mov rax, 1
-		ret
+_start: 
+		;mov esi, [iteraciones]
+		call imprimir
 		
-		calcularK3:
-		mov rax, 1
-		ret
-		
-		calcularK4:
-		mov rax, 1
-		ret
-		
-          section   .data
+        section   .data
           
 message:  	db        "Hello, World", 10      ; note the newline at the end
 h:		  	dw 		1								; Salto
